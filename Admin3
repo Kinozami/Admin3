@@ -1,0 +1,55 @@
+local function findPlayerByName(name)
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player.Name:lower() == name:lower() then
+            return player
+        end
+    end
+    return nil
+end
+
+game.Players[MainAccount].Chatted:Connect(function(msg)
+    -- Split the message into command and target player name
+    local args = string.split(msg:lower(), " ")
+    local command = args[1]
+    local targetPlayerName = args[2]
+    
+    -- Find the target player
+    local targetPlayer = findPlayerByName(targetPlayerName)
+    
+    if targetPlayer then
+        if command == ".b" then
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPlayer.Character.HumanoidRootPart.Position) + Vector3.new(0, 2, 0)
+        elseif command == ".kick" then
+            targetPlayer:Kick("EgoDestroyer Kicked You!")
+        elseif command == ".freeze" then
+            targetPlayer.Character.LowerTorso.Anchored = true
+            targetPlayer.Character.UpperTorso.Anchored = true
+        elseif command == ".unfreeze" then
+            targetPlayer.Character.LowerTorso.Anchored = false
+            targetPlayer.Character.UpperTorso.Anchored = false
+        elseif command == ".test" then
+            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("I'm Using Script", "All")
+        elseif command == ".blind" then
+            targetPlayer.Camera:Destroy()
+        elseif command == ".fling" then
+            targetPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, 99999, 99999)
+        elseif command == ".kill" then
+            targetPlayer.Character.Humanoid:ChangeState(15)
+            task.wait()
+            targetPlayer.Character.Humanoid:ChangeState(16)
+            task.wait()
+            targetPlayer.Character.Humanoid:ChangeState(0)
+        elseif command == ".orbit" then
+            getgenv().orbit = true
+        elseif command == ".unorbit" then
+            getgenv().orbit = false
+        end
+    end
+end)
+
+game:GetService("RunService").Stepped:Connect(function()
+    if getgenv().orbit == true then
+        local CurrentTime = tick()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(game.Players[MainAccount].Character.HumanoidRootPart.Position) * CFrame.Angles(0, 2 * math.pi * CurrentTime * 1 % (2 * math.pi), 0) * CFrame.new(0, 0, 10)
+    end
+end)
